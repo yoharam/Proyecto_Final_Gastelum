@@ -20,8 +20,37 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-/* ── LIGHT MODE (default) ── */
-:root,
+/* ── DARK MODE (default — forced via config.toml) ── */
+:root {
+    --guinda:   #C4536A;
+    --guinda2:  #D96B80;
+    --gold:     #D4A017;
+    --gold2:    #E8B82A;
+    --cream:    #1A1210;
+    --warm:     #221815;
+    --text:     #F0EBE3;
+    --muted:    #9B918A;
+    --success:  #4CAF7D;
+    --warning:  #E09820;
+    --danger:   #E05060;
+    --info:     #5B9BD5;
+
+    --bg-page:      #130F0D;
+    --bg-card:      #1E1714;
+    --bg-card-hover: #251C18;
+    --border:       rgba(196,83,106,0.15);
+    --shadow:       rgba(0,0,0,0.35);
+    --shadow-hover:  rgba(0,0,0,0.5);
+    --sidebar-bg1:  #0D0A09;
+    --sidebar-bg2:  #1A1210;
+    --sidebar-text: #EDE8DF;
+    --sidebar-label: #E8B82A;
+    --toggle-bg:    rgba(196,83,106,0.1);
+    --toggle-border: rgba(196,83,106,0.25);
+    --input-bg:     #251C18;
+}
+
+/* ── LIGHT MODE override ── */
 [data-theme="light"] {
     --guinda:   #6B1A2B;
     --guinda2:  #8B2236;
@@ -49,68 +78,6 @@ st.markdown("""
     --toggle-bg:    rgba(107,26,43,0.08);
     --toggle-border: rgba(107,26,43,0.2);
     --input-bg:     #FFFFFF;
-}
-
-/* ── DARK MODE ── */
-[data-theme="dark"],
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-        --guinda:   #C4536A;
-        --guinda2:  #D96B80;
-        --gold:     #D4A017;
-        --gold2:    #E8B82A;
-        --cream:    #1A1210;
-        --warm:     #221815;
-        --text:     #F0EBE3;
-        --muted:    #9B918A;
-        --success:  #4CAF7D;
-        --warning:  #E09820;
-        --danger:   #E05060;
-        --info:     #5B9BD5;
-
-        --bg-page:      #130F0D;
-        --bg-card:      #1E1714;
-        --bg-card-hover: #251C18;
-        --border:       rgba(196,83,106,0.15);
-        --shadow:       rgba(0,0,0,0.35);
-        --shadow-hover:  rgba(0,0,0,0.5);
-        --sidebar-bg1:  #0D0A09;
-        --sidebar-bg2:  #1A1210;
-        --sidebar-text: #EDE8DF;
-        --sidebar-label: #E8B82A;
-        --toggle-bg:    rgba(196,83,106,0.1);
-        --toggle-border: rgba(196,83,106,0.25);
-        --input-bg:     #251C18;
-    }
-}
-
-[data-theme="dark"] {
-    --guinda:   #C4536A;
-    --guinda2:  #D96B80;
-    --gold:     #D4A017;
-    --gold2:    #E8B82A;
-    --cream:    #1A1210;
-    --warm:     #221815;
-    --text:     #F0EBE3;
-    --muted:    #9B918A;
-    --success:  #4CAF7D;
-    --warning:  #E09820;
-    --danger:   #E05060;
-    --info:     #5B9BD5;
-
-    --bg-page:      #130F0D;
-    --bg-card:      #1E1714;
-    --bg-card-hover: #251C18;
-    --border:       rgba(196,83,106,0.15);
-    --shadow:       rgba(0,0,0,0.35);
-    --shadow-hover:  rgba(0,0,0,0.5);
-    --sidebar-bg1:  #0D0A09;
-    --sidebar-bg2:  #1A1210;
-    --sidebar-text: #EDE8DF;
-    --sidebar-label: #E8B82A;
-    --toggle-bg:    rgba(196,83,106,0.1);
-    --toggle-border: rgba(196,83,106,0.25);
-    --input-bg:     #251C18;
 }
 
 html, body, [class*="css"] {
@@ -288,16 +255,7 @@ div[data-testid="metric-container"] {
 
 
 
-<script>
-(function() {
-    // Force dark mode
-    applyTheme('dark');
-})();
-
-function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-}
-</script>
+/* Dark mode defaults — no JS needed, config.toml handles Streamlit base theme */
 """, unsafe_allow_html=True)
 
 # ── Paletas Plotly ──────────────────────────────────────────────────────────────
@@ -384,7 +342,7 @@ with st.sidebar:
     estados_disp = st.multiselect("Estado", ["Enviado", "En Revisión", "Cerrado", "Centinela"], default=["Enviado", "En Revisión", "Cerrado", "Centinela"])
 
     st.markdown("---")
-    st.markdown("<small style='color:#9B8B80'>ISSSTE — HR/HAE Tlajomulco<br>Panel de Seguridad del Paciente<br>v1.0 · 2026</small>", unsafe_allow_html=True)
+    st.markdown("<small style='color:var(--muted)'>ISSSTE — HR/HAE Tlajomulco<br>Panel de Seguridad del Paciente<br>v1.0 · 2026</small>", unsafe_allow_html=True)
 
 # ── Filtrado ──────────────────────────────────────────────────────────────────────
 if isinstance(rango, (list, tuple)) and len(rango) == 2:
@@ -436,9 +394,9 @@ with k2:
         <div class="kpi-sub">{round(adversos/total*100,1) if total else 0}% del total</div>
     </div>""", unsafe_allow_html=True)
 with k3:
-    st.markdown(f"""<div class="kpi-card" style="border-left-color:#1A4A6B">
+    st.markdown(f"""<div class="kpi-card" style="border-left-color:var(--info)">
         <div class="kpi-label">Cuasifallas</div>
-        <div class="kpi-value" style="color:#1A4A6B">{cuasifallas}</div>
+        <div class="kpi-value" style="color:var(--info)">{cuasifallas}</div>
         <div class="kpi-sub">{round(cuasifallas/total*100,1) if total else 0}% del total</div>
     </div>""", unsafe_allow_html=True)
 with k4:
@@ -585,7 +543,7 @@ with tab2:
     heat = df.groupby(["DiaSemana_n", "Hora"]).size().reset_index(name="count")
     heat_pivot = heat.pivot(index="DiaSemana_n", columns="Hora", values="count").fillna(0)
     heat_pivot.index = [orden_dias[i] for i in heat_pivot.index]
-    fig_heat = px.imshow(heat_pivot, color_continuous_scale=["#FFF5F5","#8B2236"],
+    fig_heat = px.imshow(heat_pivot, color_continuous_scale=["#1E1714","#C4536A"],
                           labels=dict(x="Hora", y="Día", color="Eventos"),
                           aspect="auto")
     fig_heat.update_layout(
@@ -626,7 +584,7 @@ with tab3:
 
         fig_risk = px.scatter(area_stats, x="total", y="centinelas", size="graves",
                                color="score", text="Área",
-                               color_continuous_scale=["#FFF5EE","#8B2236"],
+                               color_continuous_scale=["#1E1714","#C4536A"],
                                size_max=35)
         fig_risk.update_traces(textposition="top center", textfont_size=9)
         fig_risk.update_layout(
@@ -641,7 +599,7 @@ with tab3:
     st.markdown('<p class="section-title">Top Subáreas con Mayor Incidencia</p>', unsafe_allow_html=True)
     sub_counts = df.groupby(["Área","Subárea"]).size().reset_index(name="count").sort_values("count", ascending=False).head(15)
     fig_sub = px.treemap(sub_counts, path=["Área","Subárea"], values="count",
-                          color="count", color_continuous_scale=["#FFF5EE","#6B1A2B"])
+                           color="count", color_continuous_scale=["#1E1714","#6B1A2B"])
     fig_sub.update_layout(height=360, margin=dict(t=5,b=5), paper_bgcolor="rgba(0,0,0,0)")
     st.plotly_chart(fig_sub, use_container_width=True, config={"displayModeBar": False})
 
@@ -713,7 +671,7 @@ with tab5:
         prev_tipo = df.groupby(["Tipo","Prevenible"]).size().reset_index(name="count")
         fig_prev = px.bar(prev_tipo, x="Tipo", y="count", color="Prevenible",
                            barmode="group",
-                           color_discrete_map={"Sí":"#C47F00","No":"#D4D4D4"})
+                           color_discrete_map={"Sí":"#C47F00","No":"#555555"})
         fig_prev.update_layout(
             height=280, margin=dict(t=5,b=5),
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
