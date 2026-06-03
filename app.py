@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_javascript import st_javascript
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -16,124 +15,13 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Theme detection ─────────────────────────────────────────────────────────────
-def detect_theme():
-    theme = st_javascript("""(function() {
-        var saved = localStorage.getItem('hr-theme');
-        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        return saved || (prefersDark ? 'dark' : 'light');
-    })()""")
-    if theme not in ("dark", "light"):
-        theme = "dark"
-    return theme
-
-IS_DARK = detect_theme() == "dark"
-
-# ── Theme-aware Plotly palettes ─────────────────────────────────────────────────
-def get_palette():
-    if IS_DARK:
-        return {
-            "guinda":   "#C4536A",
-            "guinda2":  "#D96B80",
-            "gold":     "#D4A017",
-            "gold2":    "#E8B82A",
-            "success":  "#4CAF7D",
-            "warning":  "#E09820",
-            "danger":   "#E05060",
-            "info":     "#5B9BD5",
-            "text":     "#F0EBE3",
-            "muted":    "#9B918A",
-            "bg_card":  "#1E1714",
-            "scale_light": "#1E1714",
-            "scale_dark":  "#C4536A",
-            "scale_gold_light": "#1E1714",
-            "scale_gold_dark":  "#D4A017",
-            "grid":     "rgba(240,235,227,0.08)",
-            "no_prevenible": "#6B6460",
-            "prevenible":    "#E09820",
-            "tipo": {
-                "Adverso":    "#D96B80",
-                "Centinela":  "#E8B82A",
-                "Cuasifalla": "#5B9BD5",
-            },
-            "estado": {
-                "Enviado":     "#4CAF7D",
-                "En Revisión": "#E09820",
-                "Cerrado":     "#9B918A",
-                "Centinela":   "#C4536A",
-            },
-        }
-    else:
-        return {
-            "guinda":   "#6B1A2B",
-            "guinda2":  "#8B2236",
-            "gold":     "#B8860B",
-            "gold2":    "#D4A017",
-            "success":  "#2D7A4F",
-            "warning":  "#C47F00",
-            "danger":   "#8B0000",
-            "info":     "#1A4A6B",
-            "text":     "#1A1410",
-            "muted":    "#6B6460",
-            "bg_card":  "#FFFFFF",
-            "scale_light": "#FFF5F5",
-            "scale_dark":  "#8B2236",
-            "scale_gold_light": "#FFF5EE",
-            "scale_gold_dark":  "#8B2236",
-            "grid":     "rgba(0,0,0,0.06)",
-            "no_prevenible": "#D4D4D4",
-            "prevenible":    "#C47F00",
-            "tipo": {
-                "Adverso":    "#8B2236",
-                "Centinela":  "#B8860B",
-                "Cuasifalla": "#1A4A6B",
-            },
-            "estado": {
-                "Enviado":     "#2D7A4F",
-                "En Revisión": "#C47F00",
-                "Cerrado":     "#6B6460",
-                "Centinela":   "#6B1A2B",
-            },
-        }
-
-C = get_palette()
-
 # ── Custom CSS ──────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 /* ── LIGHT MODE (default) ── */
-:root {
-    --guinda:   #6B1A2B;
-    --guinda2:  #8B2236;
-    --gold:     #B8860B;
-    --gold2:    #D4A017;
-    --cream:    #F5F0E8;
-    --warm:     #EDE8DF;
-    --text:     #1A1410;
-    --muted:    #6B6460;
-    --success:  #2D7A4F;
-    --warning:  #C47F00;
-    --danger:   #8B0000;
-    --info:     #1A4A6B;
-
-    --bg-page:      #F5F0E8;
-    --bg-card:      #FFFFFF;
-    --bg-card-hover: #FAF8F4;
-    --border:       rgba(107,26,43,0.12);
-    --shadow:       rgba(0,0,0,0.07);
-    --shadow-hover:  rgba(0,0,0,0.13);
-    --sidebar-bg1:  #1A0810;
-    --sidebar-bg2:  #2D1020;
-    --sidebar-text: #EDE8DF;
-    --sidebar-label: #D4A017;
-    --toggle-bg:    rgba(107,26,43,0.08);
-    --toggle-border: rgba(107,26,43,0.2);
-    --input-bg:     #FFFFFF;
-}
-
-/* ── Force light mode when data-theme="light" ── */
+:root,
 [data-theme="light"] {
     --guinda:   #6B1A2B;
     --guinda2:  #8B2236;
@@ -147,6 +35,7 @@ st.markdown("""
     --warning:  #C47F00;
     --danger:   #8B0000;
     --info:     #1A4A6B;
+
     --bg-page:      #F5F0E8;
     --bg-card:      #FFFFFF;
     --bg-card-hover: #FAF8F4;
@@ -162,17 +51,8 @@ st.markdown("""
     --input-bg:     #FFFFFF;
 }
 
-[data-theme="light"] .stApp,
-[data-theme="light"] .main .block-container,
-[data-theme="light"] [data-testid="stAppViewContainer"],
-[data-theme="light"] .stMain {
-    background-color: #F5F0E8 !important;
-}
-[data-theme="light"] .stApp {
-    color: #1A1410 !important;
-}
-
 /* ── DARK MODE ── */
+[data-theme="dark"],
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
         --guinda:   #C4536A;
@@ -187,6 +67,7 @@ st.markdown("""
         --warning:  #E09820;
         --danger:   #E05060;
         --info:     #5B9BD5;
+
         --bg-page:      #130F0D;
         --bg-card:      #1E1714;
         --bg-card-hover: #251C18;
@@ -216,6 +97,7 @@ st.markdown("""
     --warning:  #E09820;
     --danger:   #E05060;
     --info:     #5B9BD5;
+
     --bg-page:      #130F0D;
     --bg-card:      #1E1714;
     --bg-card-hover: #251C18;
@@ -238,72 +120,19 @@ html, body, [class*="css"] {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.stApp,
-[data-testid="stAppViewContainer"],
-[data-testid="stMain"],
-.main .block-container,
-[data-theme="light"] .stApp,
-[data-theme="light"] [data-testid="stAppViewContainer"],
-[data-theme="light"] [data-testid="stMain"],
-[data-theme="light"] .main .block-container {
+/* Stapp main background */
+.stApp {
     background-color: var(--bg-page) !important;
-    color: var(--text) !important;
+}
+.main .block-container {
+    background-color: var(--bg-page) !important;
 }
 
-/* Streamlit header/status bar */
-header[data-testid="stHeader"],
-header[data-testid="stHeader"] [data-testid="stToolbar"],
-header[data-testid="stHeader"] [data-testid="stHeaderActions"],
-[data-theme="light"] header[data-testid="stHeader"],
-[data-theme="light"] header[data-testid="stHeader"] [data-testid="stToolbar"] {
-    background-color: #F5F0E8 !important;
-    color: #1A1410 !important;
-}
 
-/* Deploy button area */
-[data-theme="light"] .stDeployButton,
-[data-theme="light"] [data-testid="stStatusWidget"],
-[data-theme="light"] header {
-    background-color: #F5F0E8 !important;
-}
-
-/* ── Dark mode toggle button ── */
-#theme-toggle-container {
-    position: fixed;
-    top: 14px;
-    right: 80px;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-#theme-toggle {
-    background: var(--toggle-bg);
-    border: 1.5px solid var(--toggle-border);
-    border-radius: 24px;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--guinda);
-    letter-spacing: 0.04em;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(8px);
-    white-space: nowrap;
-}
-#theme-toggle:hover {
-    background: var(--guinda);
-    color: white;
-    border-color: var(--guinda);
-}
 
 /* ── Header ── */
 .main-header {
-    background: linear-gradient(135deg, var(--guinda) 0%, var(--guinda2) 60%, var(--guinda) 100%);
+    background: linear-gradient(135deg, var(--guinda) 0%, var(--guinda2) 60%, #3D0A15 100%);
     padding: 2rem 2.5rem;
     border-radius: 16px;
     margin-bottom: 1.5rem;
@@ -358,8 +187,6 @@ header[data-testid="stHeader"] [data-testid="stHeaderActions"],
 .kpi-green .kpi-value { color: var(--success); }
 .kpi-warn   { border-left-color: var(--warning); }
 .kpi-warn .kpi-value { color: var(--warning); }
-.kpi-info   { border-left-color: var(--info); }
-.kpi-info .kpi-value { color: var(--info); }
 
 /* ── Section title ── */
 .section-title {
@@ -377,66 +204,24 @@ header[data-testid="stHeader"] [data-testid="stHeaderActions"],
 .dataframe { font-size: 0.82rem !important; }
 
 /* ── Streamlit native elements in dark mode ── */
-[data-theme="dark"] .stApp,
-[data-theme="dark"] [data-testid="stAppViewContainer"],
-[data-theme="dark"] [data-testid="stMain"],
-[data-theme="dark"] .main .block-container {
-    background-color: #130F0D !important;
-    color: #F0EBE3 !important;
-}
-
-[data-theme="dark"] header[data-testid="stHeader"],
-[data-theme="dark"] header[data-testid="stHeader"] [data-testid="stToolbar"],
-[data-theme="dark"] header[data-testid="stHeader"] [data-testid="stHeaderActions"],
-[data-theme="dark"] .stDeployButton,
-[data-theme="dark"] [data-testid="stStatusWidget"] {
-    background-color: #130F0D !important;
-    color: #F0EBE3 !important;
-}
-
 [data-theme="dark"] .stDataFrame,
 [data-theme="dark"] [data-testid="stDataFrame"] {
-    background: #1E1714 !important;
+    background: var(--bg-card) !important;
 }
 [data-theme="dark"] .stTextInput input,
 [data-theme="dark"] .stSelectbox select,
-[data-theme="dark"] [data-testid="stTextInput"] input,
-[data-theme="dark"] .stMultiSelect,
-[data-theme="dark"] [data-baseweb="select"] {
-    background: #251C18 !important;
-    color: #F0EBE3 !important;
-    border-color: rgba(196,83,106,0.15) !important;
+[data-theme="dark"] [data-testid="stTextInput"] input {
+    background: var(--input-bg) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
 }
 [data-theme="dark"] [data-testid="metric-container"] {
-    background: #1E1714 !important;
-    color: #F0EBE3 !important;
+    background: var(--bg-card) !important;
+    color: var(--text) !important;
 }
 [data-theme="dark"] .stTabs [data-baseweb="tab"] {
-    background: #1E1714 !important;
-    color: #F0EBE3 !important;
-}
-[data-theme="dark"] [data-baseweb="tab-border"] {
-    background-color: rgba(196,83,106,0.15) !important;
-}
-[data-theme="dark"] [data-baseweb="tab-highlight"] {
-    background-color: #C4536A !important;
-}
-[data-theme="dark"] .stMarkdown p,
-[data-theme="dark"] .stMarkdown h1,
-[data-theme="dark"] .stMarkdown h2,
-[data-theme="dark"] .stMarkdown h3,
-[data-theme="dark"] .stMarkdown li,
-[data-theme="dark"] .stCaption {
-    color: #F0EBE3 !important;
-}
-[data-theme="dark"] [data-testid="stWidgetLabel"] {
-    color: #F0EBE3 !important;
-}
-[data-theme="dark"] .stDownloadButton button,
-[data-theme="dark"] .stButton button {
-    background-color: #C4536A !important;
-    color: white !important;
-    border: none !important;
+    background: var(--bg-card) !important;
+    color: var(--text) !important;
 }
 
 /* ── Sidebar ── */
@@ -451,9 +236,6 @@ header[data-testid="stHeader"] [data-testid="stHeaderActions"],
     color: var(--sidebar-label) !important;
     font-size: 0.8rem; font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.06em;
-}
-[data-testid="stSidebar"] small {
-    color: var(--muted) !important;
 }
 
 /* ── Badges ── */
@@ -504,51 +286,26 @@ div[data-testid="metric-container"] {
 }
 </style>
 
-<!-- ── Theme toggle script ── -->
-<div id="theme-toggle-container">
-  <button id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
-    <span id="theme-icon">🌙</span>
-    <span id="theme-label">Oscuro</span>
-  </button>
-</div>
+
 
 <script>
 (function() {
-    var saved = localStorage.getItem('hr-theme');
-    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var theme = saved || (prefersDark ? 'dark' : 'light');
-    applyTheme(theme);
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-        if (!localStorage.getItem('hr-theme')) {
-            applyTheme(e.matches ? 'dark' : 'light');
-        }
-    });
+    // Force dark mode
+    applyTheme('dark');
 })();
 
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    var icon  = document.getElementById('theme-icon');
-    var label = document.getElementById('theme-label');
-    if (icon && label) {
-        if (theme === 'dark') {
-            icon.textContent  = '\u2600\uFE0F';
-            label.textContent = 'Claro';
-        } else {
-            icon.textContent  = '\\u{1F319}';
-            label.textContent = 'Oscuro';
-        }
-    }
-}
-
-function toggleTheme() {
-    var current = document.documentElement.getAttribute('data-theme') || 'light';
-    var next    = current === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('hr-theme', next);
-    applyTheme(next);
 }
 </script>
 """, unsafe_allow_html=True)
+
+# ── Paletas Plotly ──────────────────────────────────────────────────────────────
+GUINDA = "#6B1A2B"
+GOLD   = "#B8860B"
+GOLD2  = "#D4A017"
+COLORS_TIPO  = {"Adverso": "#8B2236", "Centinela": "#B8860B", "Cuasifalla": "#1A4A6B"}
+COLORS_ESTADO = {"Enviado": "#2D7A4F", "En Revisión": "#C47F00", "Cerrado": "#6B6460", "Centinela": "#6B1A2B"}
 
 # ── Datos de ejemplo ─────────────────────────────────────────────────────────────
 @st.cache_data
@@ -627,7 +384,7 @@ with st.sidebar:
     estados_disp = st.multiselect("Estado", ["Enviado", "En Revisión", "Cerrado", "Centinela"], default=["Enviado", "En Revisión", "Cerrado", "Centinela"])
 
     st.markdown("---")
-    st.markdown("<small>ISSSTE — HR/HAE Tlajomulco<br>Panel de Seguridad del Paciente<br>v1.0 · 2026</small>", unsafe_allow_html=True)
+    st.markdown("<small style='color:#9B8B80'>ISSSTE — HR/HAE Tlajomulco<br>Panel de Seguridad del Paciente<br>v1.0 · 2026</small>", unsafe_allow_html=True)
 
 # ── Filtrado ──────────────────────────────────────────────────────────────────────
 if isinstance(rango, (list, tuple)) and len(rango) == 2:
@@ -679,9 +436,9 @@ with k2:
         <div class="kpi-sub">{round(adversos/total*100,1) if total else 0}% del total</div>
     </div>""", unsafe_allow_html=True)
 with k3:
-    st.markdown(f"""<div class="kpi-card kpi-info">
+    st.markdown(f"""<div class="kpi-card" style="border-left-color:#1A4A6B">
         <div class="kpi-label">Cuasifallas</div>
-        <div class="kpi-value">{cuasifallas}</div>
+        <div class="kpi-value" style="color:#1A4A6B">{cuasifallas}</div>
         <div class="kpi-sub">{round(cuasifallas/total*100,1) if total else 0}% del total</div>
     </div>""", unsafe_allow_html=True)
 with k4:
@@ -699,20 +456,6 @@ with k5:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ── Helper: theme-aware Plotly layout ─────────────────────────────────────────────
-def themed_layout(**overrides):
-    base = dict(
-        height=300,
-        margin=dict(t=10, b=10, l=10, r=10),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color=C["text"]),
-        xaxis=dict(gridcolor=C["grid"], zerolinecolor=C["grid"]),
-        yaxis=dict(gridcolor=C["grid"], zerolinecolor=C["grid"]),
-    )
-    base.update(overrides)
-    return base
-
 # ── Tabs ───────────────────────────────────────────────────────────────────────────
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Resumen", "📈 Tendencias", "🗺️ Por Área", "📋 Registros", "⚙️ Calidad"])
 
@@ -728,13 +471,12 @@ with tab1:
         tipo_counts = df["Tipo"].value_counts().reset_index()
         tipo_counts.columns = ["Tipo", "count"]
         fig_tipo = px.pie(tipo_counts, names="Tipo", values="count", hole=0.6,
-                          color="Tipo", color_discrete_map=C["tipo"])
-        fig_tipo.update_traces(textposition="outside", textinfo="label+percent",
-                               textfont=dict(color=C["text"]))
+                          color="Tipo", color_discrete_map=COLORS_TIPO)
+        fig_tipo.update_traces(textposition="outside", textinfo="label+percent")
         fig_tipo.update_layout(
             showlegend=False, margin=dict(t=10, b=10, l=10, r=10), height=280,
             annotations=[dict(text=f"<b>{total}</b><br>eventos", x=0.5, y=0.5,
-                              font_size=16, showarrow=False, font_color=C["guinda"])],
+                              font_size=16, showarrow=False, font_color=GUINDA)],
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)"
         )
         st.plotly_chart(fig_tipo, use_container_width=True, config={"displayModeBar": False})
@@ -745,13 +487,12 @@ with tab1:
         est_counts = df["Estado"].value_counts().reset_index()
         est_counts.columns = ["Estado", "count"]
         fig_est = px.pie(est_counts, names="Estado", values="count", hole=0.6,
-                         color="Estado", color_discrete_map=C["estado"])
-        fig_est.update_traces(textposition="outside", textinfo="label+percent",
-                              textfont=dict(color=C["text"]))
+                         color="Estado", color_discrete_map=COLORS_ESTADO)
+        fig_est.update_traces(textposition="outside", textinfo="label+percent")
         fig_est.update_layout(
             showlegend=False, margin=dict(t=10, b=10, l=10, r=10), height=280,
             annotations=[dict(text=f"<b>{enviados}</b><br>enviados", x=0.5, y=0.5,
-                               font_size=16, showarrow=False, font_color=C["estado"]["Enviado"])],
+                               font_size=16, showarrow=False, font_color="#2D7A4F")],
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)"
         )
         st.plotly_chart(fig_est, use_container_width=True, config={"displayModeBar": False})
@@ -762,13 +503,14 @@ with tab1:
         inc_counts = df["Incidente"].value_counts().head(6).reset_index()
         inc_counts.columns = ["Incidente", "count"]
         fig_inc = px.bar(inc_counts.sort_values("count"), x="count", y="Incidente",
-                          orientation="h", color_discrete_sequence=[C["guinda"]])
-        fig_inc.update_layout(**themed_layout(
-            height=280, xaxis_title="", yaxis_title="",
+                          orientation="h", color_discrete_sequence=[GUINDA])
+        fig_inc.update_layout(
+            xaxis_title="", yaxis_title="", height=280,
             margin=dict(t=5, b=5, l=5, r=10),
-            yaxis=dict(tickfont=dict(size=11), gridcolor="rgba(0,0,0,0)"),
-        ))
-        fig_inc.update_traces(marker_color=C["guinda"], marker_line_width=0)
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            yaxis=dict(tickfont=dict(size=11))
+        )
+        fig_inc.update_traces(marker_color=GUINDA, marker_line_width=0)
         st.plotly_chart(fig_inc, use_container_width=True, config={"displayModeBar": False})
 
     # Gravedad
@@ -778,12 +520,12 @@ with tab1:
     grav_tipo["Gravedad"] = pd.Categorical(grav_tipo["Gravedad"], categories=orden_grav, ordered=True)
     grav_tipo = grav_tipo.sort_values("Gravedad")
     fig_grav = px.bar(grav_tipo, x="Gravedad", y="count", color="Tipo",
-                       color_discrete_map=C["tipo"], barmode="group")
-    fig_grav.update_layout(**themed_layout(
-        height=300,
-        xaxis_title="", yaxis_title="N° Eventos", legend_title="Tipo",
-        xaxis=dict(gridcolor="rgba(0,0,0,0)"),
-    ))
+                       color_discrete_map=COLORS_TIPO, barmode="group")
+    fig_grav.update_layout(
+        height=300, margin=dict(t=10, b=10, l=10, r=10),
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        xaxis_title="", yaxis_title="N° Eventos", legend_title="Tipo"
+    )
     st.plotly_chart(fig_grav, use_container_width=True, config={"displayModeBar": False})
 
 # ═══════════════════════════════════════════════════
@@ -796,13 +538,14 @@ with tab2:
     weekly = df_trend.groupby(["Semana", "Tipo"]).size().reset_index(name="count")
 
     fig_line = px.line(weekly, x="Semana", y="count", color="Tipo",
-                        color_discrete_map=C["tipo"], markers=True, line_shape="spline")
+                        color_discrete_map=COLORS_TIPO, markers=True, line_shape="spline")
     fig_line.update_traces(line_width=2.5, marker_size=7)
-    fig_line.update_layout(**themed_layout(
+    fig_line.update_layout(
         height=340, margin=dict(t=10, b=10),
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         xaxis_title="", yaxis_title="N° Eventos", legend_title="Tipo",
         hovermode="x unified"
-    ))
+    )
     st.plotly_chart(fig_line, use_container_width=True, config={"displayModeBar": False})
 
     col_l, col_r = st.columns(2)
@@ -811,12 +554,13 @@ with tab2:
         df["Hora"] = df["Fecha"].dt.hour
         hora_counts = df.groupby(["Hora", "Tipo"]).size().reset_index(name="count")
         fig_hora = px.area(hora_counts, x="Hora", y="count", color="Tipo",
-                            color_discrete_map=C["tipo"])
-        fig_hora.update_layout(**themed_layout(
-            height=280, margin=dict(t=5, b=5),
-            xaxis=dict(tickmode="linear", dtick=4, title="Hora", gridcolor=C["grid"]),
+                            color_discrete_map=COLORS_TIPO)
+        fig_hora.update_layout(
+            height=280, margin=dict(t=5,b=5),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(tickmode="linear", dtick=4, title="Hora"),
             yaxis_title="Eventos", legend_title="Tipo"
-        ))
+        )
         st.plotly_chart(fig_hora, use_container_width=True, config={"displayModeBar": False})
 
     with col_r:
@@ -827,12 +571,12 @@ with tab2:
         dia_counts = df.groupby("DiaSemana").size().reset_index(name="count")
         dia_counts["DiaSemana"] = pd.Categorical(dia_counts["DiaSemana"], categories=orden_dias, ordered=True)
         dia_counts = dia_counts.sort_values("DiaSemana")
-        fig_dia = px.bar(dia_counts, x="DiaSemana", y="count", color_discrete_sequence=[C["gold"]])
-        fig_dia.update_layout(**themed_layout(
-            height=280, margin=dict(t=5, b=5),
-            xaxis_title="", yaxis_title="Eventos",
-            xaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        ))
+        fig_dia = px.bar(dia_counts, x="DiaSemana", y="count", color_discrete_sequence=[GOLD])
+        fig_dia.update_layout(
+            height=280, margin=dict(t=5,b=5),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            xaxis_title="", yaxis_title="Eventos"
+        )
         st.plotly_chart(fig_dia, use_container_width=True, config={"displayModeBar": False})
 
     # Heatmap
@@ -841,13 +585,13 @@ with tab2:
     heat = df.groupby(["DiaSemana_n", "Hora"]).size().reset_index(name="count")
     heat_pivot = heat.pivot(index="DiaSemana_n", columns="Hora", values="count").fillna(0)
     heat_pivot.index = [orden_dias[i] for i in heat_pivot.index]
-    fig_heat = px.imshow(heat_pivot,
-                          color_continuous_scale=[C["scale_light"], C["scale_dark"]],
+    fig_heat = px.imshow(heat_pivot, color_continuous_scale=["#FFF5F5","#8B2236"],
                           labels=dict(x="Hora", y="Día", color="Eventos"),
                           aspect="auto")
-    fig_heat.update_layout(**themed_layout(
-        height=280, margin=dict(t=5, b=5),
-    ))
+    fig_heat.update_layout(
+        height=280, margin=dict(t=5,b=5),
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)"
+    )
     st.plotly_chart(fig_heat, use_container_width=True, config={"displayModeBar": False})
 
 # ═══════════════════════════════════════════════════
@@ -862,12 +606,12 @@ with tab3:
         area_total = area_tipo.groupby("Área")["count"].sum().sort_values(ascending=True)
         area_tipo["Área"] = pd.Categorical(area_tipo["Área"], categories=area_total.index, ordered=True)
         fig_area = px.bar(area_tipo.sort_values("Área"), x="count", y="Área", color="Tipo",
-                           orientation="h", color_discrete_map=C["tipo"], barmode="stack")
-        fig_area.update_layout(**themed_layout(
-            height=380, margin=dict(t=5, b=5),
-            xaxis_title="N° Eventos", yaxis_title="", legend_title="Tipo",
-            yaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        ))
+                           orientation="h", color_discrete_map=COLORS_TIPO, barmode="stack")
+        fig_area.update_layout(
+            height=380, margin=dict(t=5,b=5),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            xaxis_title="N° Eventos", yaxis_title="", legend_title="Tipo"
+        )
         st.plotly_chart(fig_area, use_container_width=True, config={"displayModeBar": False})
 
     with col_n:
@@ -882,26 +626,23 @@ with tab3:
 
         fig_risk = px.scatter(area_stats, x="total", y="centinelas", size="graves",
                                color="score", text="Área",
-                               color_continuous_scale=[C["scale_gold_light"], C["scale_dark"]],
+                               color_continuous_scale=["#FFF5EE","#8B2236"],
                                size_max=35)
-        fig_risk.update_traces(textposition="top center", textfont_size=9,
-                               textfont=dict(color=C["text"]))
-        fig_risk.update_layout(**themed_layout(
-            height=380, margin=dict(t=5, b=5),
+        fig_risk.update_traces(textposition="top center", textfont_size=9)
+        fig_risk.update_layout(
+            height=380, margin=dict(t=5,b=5),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             xaxis_title="Total eventos", yaxis_title="Eventos centinela",
-            coloraxis_showscale=False,
-        ))
+            coloraxis_showscale=False
+        )
         st.plotly_chart(fig_risk, use_container_width=True, config={"displayModeBar": False})
 
     # Subáreas
     st.markdown('<p class="section-title">Top Subáreas con Mayor Incidencia</p>', unsafe_allow_html=True)
     sub_counts = df.groupby(["Área","Subárea"]).size().reset_index(name="count").sort_values("count", ascending=False).head(15)
     fig_sub = px.treemap(sub_counts, path=["Área","Subárea"], values="count",
-                          color="count",
-                          color_continuous_scale=[C["scale_gold_light"], C["scale_dark"]])
-    fig_sub.update_layout(height=360, margin=dict(t=5, b=5),
-                          paper_bgcolor="rgba(0,0,0,0)",
-                          font=dict(color=C["text"]))
+                          color="count", color_continuous_scale=["#FFF5EE","#6B1A2B"])
+    fig_sub.update_layout(height=360, margin=dict(t=5,b=5), paper_bgcolor="rgba(0,0,0,0)")
     st.plotly_chart(fig_sub, use_container_width=True, config={"displayModeBar": False})
 
 # ═══════════════════════════════════════════════════
@@ -945,6 +686,7 @@ with tab4:
 
     st.caption(f"Mostrando {len(df_show)} de {total} registros")
 
+    # Descarga
     csv = df_show.to_csv(index=False).encode("utf-8")
     st.download_button("⬇️ Descargar CSV", data=csv, file_name="eventos_seguridad.csv", mime="text/csv")
 
@@ -971,12 +713,12 @@ with tab5:
         prev_tipo = df.groupby(["Tipo","Prevenible"]).size().reset_index(name="count")
         fig_prev = px.bar(prev_tipo, x="Tipo", y="count", color="Prevenible",
                            barmode="group",
-                           color_discrete_map={"Sí": C["prevenible"], "No": C["no_prevenible"]})
-        fig_prev.update_layout(**themed_layout(
-            height=280, margin=dict(t=5, b=5),
-            xaxis_title="", yaxis_title="Eventos", legend_title="Prevenible",
-            xaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        ))
+                           color_discrete_map={"Sí":"#C47F00","No":"#D4D4D4"})
+        fig_prev.update_layout(
+            height=280, margin=dict(t=5,b=5),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            xaxis_title="", yaxis_title="Eventos", legend_title="Prevenible"
+        )
         st.plotly_chart(fig_prev, use_container_width=True, config={"displayModeBar": False})
 
     with col_r2:
@@ -984,12 +726,12 @@ with tab5:
         rep_counts = df["Reportador"].value_counts().reset_index()
         rep_counts.columns = ["Reportador","count"]
         fig_rep = px.bar(rep_counts, x="count", y="Reportador", orientation="h",
-                          color_discrete_sequence=[C["guinda"]])
-        fig_rep.update_layout(**themed_layout(
-            height=280, margin=dict(t=5, b=5),
-            xaxis_title="Eventos", yaxis_title="",
-            yaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        ))
+                          color_discrete_sequence=[GUINDA])
+        fig_rep.update_layout(
+            height=280, margin=dict(t=5,b=5),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            xaxis_title="Eventos", yaxis_title=""
+        )
         st.plotly_chart(fig_rep, use_container_width=True, config={"displayModeBar": False})
 
     # Semáforo de riesgo
